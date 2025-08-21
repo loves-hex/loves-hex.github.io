@@ -29,7 +29,6 @@ function renderPoems(poems) {
     const div = document.createElement("div");
     div.className = "poem";
 
-    // Convert numeric month to name
     const monthName = monthNames[poem.month - 1] || "Unknown";
 
     div.innerHTML = `
@@ -40,28 +39,28 @@ function renderPoems(poems) {
     container.appendChild(div);
     setTimeout(() => div.classList.add("visible"), 50);
   });
+}
 
-  // Populate year filter dropdown
-  function populateYearFilter(poems) {
-    const select = document.getElementById("yearFilter");
-    select.innerHTML = '<option value="all">All</option>'; // reset
+// Populate year filter dropdown
+function populateYearFilter(poems) {
+  const select = document.getElementById("yearFilter");
+  select.innerHTML = '<option value="all">All</option>'; // reset
 
-    const years = [...new Set(poems.map(p => Number(p.year)))].sort((a,b) => b-a);
+  const years = [...new Set(poems.map(p => Number(p.year)))].sort((a,b) => b-a);
 
-    years.forEach(year => {
-      const option = document.createElement("option");
-      option.value = year;
-      option.textContent = year;
-      select.appendChild(option);
-    });
+  years.forEach(year => {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    select.appendChild(option);
+  });
 
-    select.addEventListener("change", () => {
-      const selected = select.value;
-      if (selected === "all") {
-        renderPoems(allPoems);
-      } else {
-        renderPoems(allPoems.filter(p => p.year == selected));
-      }
-    });
-  }
+  select.addEventListener("change", () => {
+    const selected = select.value;
+    if (selected === "all") {
+      renderPoems(allPoems);
+    } else {
+      renderPoems(allPoems.filter(p => p.year == selected));
+    }
+  });
 }
