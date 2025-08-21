@@ -1,1 +1,1 @@
-# loveshex
+# loves-hex
