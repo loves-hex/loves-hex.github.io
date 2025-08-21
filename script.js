@@ -17,7 +17,7 @@ function renderPoems(poems) {
   const sorted = [...poems].sort((a, b) => {
     const dateA = a.year * 100 + a.month;
     const dateB = b.year * 100 + b.month;
-    return dateA - dateB; // oldest first
+    return dateB - dateA; // newest first
   });
 
   const monthNames = [
