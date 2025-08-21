@@ -4,26 +4,29 @@ fetch("poems.json")
   .then(res => res.json())
   .then(poems => {
     allPoems = poems;
-    populateYearFilter(poems);
+    populateDateFilter(poems);
     renderPoems(poems);
   })
-  .catch(err => {
-    console.error("Error loading poems:", err);
-  });
+  .catch(err => console.error("Error loading poems:", err));
 
-// Render poems (A → Z only)
+// Render poems chronologically
 function renderPoems(poems) {
   const container = document.getElementById("poems");
   container.innerHTML = "";
 
-  const sorted = [...poems].sort((a, b) => a.title.localeCompare(b.title));
+  const sorted = [...poems].sort((a, b) => {
+    // Create a date number for comparison: YYYYMM
+    const dateA = a.year * 100 + a.month;
+    const dateB = b.year * 100 + b.month;
+    return dateA - dateB; // ascending order
+  });
 
   sorted.forEach(poem => {
     const div = document.createElement("div");
     div.className = "poem";
     div.innerHTML = `
       <h2>${poem.title}</h2>
-      <small>Year: ${poem.year}</small>
+      <small>${poem.month}/${poem.year}</small>
       <p>${poem.text.replace(/\n/g, "<br>")}</p>
     `;
     container.appendChild(div);
@@ -32,24 +35,35 @@ function renderPoems(poems) {
   });
 }
 
-// Populate year filter
-function populateYearFilter(poems) {
-  const years = [...new Set(poems.map(p => p.year))].sort((a,b) => b-a);
-  const select = document.getElementById("yearFilter");
+// Populate date filter dropdown
+function populateDateFilter(poems) {
+  const select = document.getElementById("dateFilter");
+  select.innerHTML = '<option value="all">All</option>'; // reset
 
-  years.forEach(year => {
+  // Generate unique year/month pairs
+  const dateSet = new Set(poems.map(p => `${p.year}-${p.month}`));
+  const dateArray = Array.from(dateSet)
+    .map(str => {
+      const [year, month] = str.split("-").map(Number);
+      return { year, month };
+    })
+    .sort((a, b) => a.year * 100 + a.month - (b.year * 100 + b.month)); // ascending
+
+  // Add options to dropdown
+  dateArray.forEach(d => {
     const option = document.createElement("option");
-    option.value = year;
-    option.textContent = year;
+    option.value = `${d.year}-${d.month}`;
+    option.textContent = `${d.month}/${d.year}`;
     select.appendChild(option);
   });
 
   select.addEventListener("change", () => {
     const selected = select.value;
-    if(selected === "all") {
+    if (selected === "all") {
       renderPoems(allPoems);
     } else {
-      renderPoems(allPoems.filter(p => p.year == selected));
+      const [year, month] = selected.split("-").map(Number);
+      renderPoems(allPoems.filter(p => p.year === year && p.month === month));
     }
   });
 }
