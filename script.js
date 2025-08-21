@@ -4,7 +4,7 @@ fetch("poems.json")
   .then(res => res.json())
   .then(poems => {
     allPoems = poems;
-    populateDateFilter(poems);
+    populateYearFilter(poems);
     renderPoems(poems);
   })
   .catch(err => console.error("Error loading poems:", err));
@@ -15,10 +15,9 @@ function renderPoems(poems) {
   container.innerHTML = "";
 
   const sorted = [...poems].sort((a, b) => {
-    // Create a date number for comparison: YYYYMM
     const dateA = a.year * 100 + a.month;
     const dateB = b.year * 100 + b.month;
-    return dateA - dateB; // ascending order
+    return dateA - dateB; // oldest first
   });
 
   sorted.forEach(poem => {
@@ -30,30 +29,21 @@ function renderPoems(poems) {
       <p>${poem.text.replace(/\n/g, "<br>")}</p>
     `;
     container.appendChild(div);
-    // Animate in
     setTimeout(() => div.classList.add("visible"), 50);
   });
 }
 
-// Populate date filter dropdown
-function populateDateFilter(poems) {
-  const select = document.getElementById("dateFilter");
+// Populate year filter dropdown
+function populateYearFilter(poems) {
+  const select = document.getElementById("yearFilter");
   select.innerHTML = '<option value="all">All</option>'; // reset
 
-  // Generate unique year/month pairs
-  const dateSet = new Set(poems.map(p => `${p.year}-${p.month}`));
-  const dateArray = Array.from(dateSet)
-    .map(str => {
-      const [year, month] = str.split("-").map(Number);
-      return { year, month };
-    })
-    .sort((a, b) => a.year * 100 + a.month - (b.year * 100 + b.month)); // ascending
+  const years = [...new Set(poems.map(p => Number(p.year)))].sort((a,b) => b-a);
 
-  // Add options to dropdown
-  dateArray.forEach(d => {
+  years.forEach(year => {
     const option = document.createElement("option");
-    option.value = `${d.year}-${d.month}`;
-    option.textContent = `${d.month}/${d.year}`;
+    option.value = year;
+    option.textContent = year;
     select.appendChild(option);
   });
 
@@ -62,8 +52,7 @@ function populateDateFilter(poems) {
     if (selected === "all") {
       renderPoems(allPoems);
     } else {
-      const [year, month] = selected.split("-").map(Number);
-      renderPoems(allPoems.filter(p => p.year === year && p.month === month));
+      renderPoems(allPoems.filter(p => p.year == selected));
     }
   });
 }
