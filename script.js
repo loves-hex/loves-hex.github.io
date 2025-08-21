@@ -7,35 +7,38 @@ fetch("poems.json")
     populateYearFilter(poems);
     renderPoems(poems);
   })
-  .catch(err => {
-    console.error("Error loading poems:", err);
-  });
+  .catch(err => console.error("Error loading poems:", err));
 
-// Render poems (A → Z only)
+// Render poems chronologically
 function renderPoems(poems) {
   const container = document.getElementById("poems");
   container.innerHTML = "";
 
-  const sorted = [...poems].sort((a, b) => a.title.localeCompare(b.title));
+  const sorted = [...poems].sort((a, b) => {
+    const dateA = a.year * 100 + a.month;
+    const dateB = b.year * 100 + b.month;
+    return dateA - dateB; // oldest first
+  });
 
   sorted.forEach(poem => {
     const div = document.createElement("div");
     div.className = "poem";
     div.innerHTML = `
       <h2>${poem.title}</h2>
-      <small>Year: ${poem.year}</small>
+      <small>${poem.month}/${poem.year}</small>
       <p>${poem.text.replace(/\n/g, "<br>")}</p>
     `;
     container.appendChild(div);
-    // Animate in
     setTimeout(() => div.classList.add("visible"), 50);
   });
 }
 
-// Populate year filter
+// Populate year filter dropdown
 function populateYearFilter(poems) {
-  const years = [...new Set(poems.map(p => p.year))].sort((a,b) => b-a);
   const select = document.getElementById("yearFilter");
+  select.innerHTML = '<option value="all">All</option>'; // reset
+
+  const years = [...new Set(poems.map(p => Number(p.year)))].sort((a,b) => b-a);
 
   years.forEach(year => {
     const option = document.createElement("option");
@@ -46,7 +49,7 @@ function populateYearFilter(poems) {
 
   select.addEventListener("change", () => {
     const selected = select.value;
-    if(selected === "all") {
+    if (selected === "all") {
       renderPoems(allPoems);
     } else {
       renderPoems(allPoems.filter(p => p.year == selected));
