@@ -20,18 +20,26 @@ function renderPoems(poems) {
     return dateA - dateB; // oldest first
   });
 
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
   sorted.forEach(poem => {
     const div = document.createElement("div");
     div.className = "poem";
+
+    // Convert numeric month to name
+    const monthName = monthNames[poem.month - 1] || "Unknown";
+
     div.innerHTML = `
       <h2>${poem.title}</h2>
-      <small>${poem.month}/${poem.year}</small>
+      <small>${monthName} ${poem.year}</small>
       <p>${poem.text.replace(/\n/g, "<br>")}</p>
     `;
     container.appendChild(div);
     setTimeout(() => div.classList.add("visible"), 50);
   });
-}
 
 // Populate year filter dropdown
 function populateYearFilter(poems) {
