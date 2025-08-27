@@ -12,7 +12,10 @@ fetch("poems.json")
 // Render poems chronologically
 function renderPoems(poems) {
   const container = document.getElementById("poems");
+  const countEl = document.getElementById("poemCount");
+  
   container.innerHTML = "";
+  countEl.textContent = `${poems.length} poem${poems.length !== 1 ? "s" : ""}`;
 
   const sorted = [...poems].sort((a, b) => {
     const dateA = a.year * 100 + a.month;
